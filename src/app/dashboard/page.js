@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { fetchAllProducts, fetchCategories } from '@/lib/api';
+import { useProductStore } from '@/store/productStore';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,14 +24,22 @@ export default function DashboardPage() {
     const [error, setError] = useState(null);
     const add = useCartStore(s => s.add);
 
+    const localProducts = useProductStore(s => s.products);
     useEffect(() => {
         (async () => {
-            try { setLoading(true); setError(null); const data = await fetchAllProducts(); setAllProducts(data); }
+            try { setLoading(true); setError(null); const data = await fetchAllProducts(); setAllProducts([...localProducts, ...data]); }
             catch (e) { setError(e.message); }
             finally { setLoading(false); }
         })();
-        fetchCategories().then(setCategories).catch(console.error);
+        fetchCategories().then(cats => setCategories(prev => Array.from(new Set([...prev, ...cats])))).catch(console.error);
     }, []);
+
+    useEffect(() => {
+        setAllProducts(prev => {
+            const remote = prev.filter(p => !p.local);
+            return [...localProducts, ...remote];
+        });
+    }, [localProducts]);
 
     useEffect(() => {
         let data = allProducts;
@@ -47,7 +56,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto p-4 space-y-6">
             <div className="space-y-2">
                 <h1 className="text-2xl font-bold">Product Dashboard</h1>
-                <p className="text-sm text-neutral-600">Browse products, filter and add to cart.</p>
+                <p className="text-sm text-neutral-600">Browse products, filter and add to cart. <a href="/addItem" className="underline ml-1">Add mock product ↗</a></p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
                 <Input placeholder="Search title..." value={search} onChange={e => { setPage(1); setSearch(e.target.value); }} />
@@ -76,7 +85,10 @@ export default function DashboardPage() {
                 {products.map(p => (
                     <Card key={p.id} className="flex flex-col">
                         <CardHeader>
-                            <CardTitle className="line-clamp-2 text-sm">{p.title}</CardTitle>
+                            <CardTitle className="line-clamp-2 text-sm flex items-center gap-2">
+                                {p.title}
+                                {p.local && <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded bg-neutral-900 text-white">LOCAL</span>}
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="flex-1 flex flex-col items-center justify-center">
                             <img src={p.image} alt={p.title} loading="lazy" className="h-32 w-auto object-contain" />
@@ -85,7 +97,7 @@ export default function DashboardPage() {
                         <CardFooter>
                             <span className="font-semibold text-sm">${p.price}</span>
                             <div className="flex gap-2">
-                                <Link href={`/product/${p.id}`} className="text-sm"><Button variant="ghost">View</Button></Link>
+                                {!p.local && <Link href={`/product/${p.id}`} className="text-sm"><Button variant="ghost">View</Button></Link>}
                                 <Button onClick={() => add(p)} className="text-sm">Add</Button>
                             </div>
                         </CardFooter>

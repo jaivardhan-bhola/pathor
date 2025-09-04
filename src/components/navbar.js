@@ -15,6 +15,7 @@ function NavLink({ href, children }) {
 
 export function Navbar() {
     const totalItems = useCartStore(s => s.totalItems());
+    const totalPrice = useCartStore(s => s.totalPrice());
     return (
         <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/80 backdrop-blur">
             <div className="max-w-7xl mx-auto h-14 px-4 md:px-6 flex items-center justify-between gap-6">
@@ -23,16 +24,20 @@ export function Navbar() {
                     <nav className="hidden sm:flex items-center gap-5">
                         <NavLink href="/">Home</NavLink>
                         <NavLink href="/dashboard">Dashboard</NavLink>
+                        <NavLink href="/addItem">Add Item</NavLink>
                     </nav>
                 </div>
                 <div className="flex items-center gap-3">
                     <Link href="/cart" className="relative">
-                        <Button variant="outline" className="h-9 px-4">
-                            Cart
+                        <Button variant="outline" className="h-9 px-4 gap-2">
+                            <span>Cart</span>
                             {totalItems > 0 && (
-                                <span className="ml-2 inline-flex items-center justify-center text-xs font-semibold rounded-full bg-neutral-900 text-white h-5 min-w-[1.25rem] px-1">
-                                    {totalItems}
-                                </span>
+                                <>
+                                    <span className="inline-flex items-center justify-center text-xs font-semibold rounded-full bg-neutral-900 text-white h-5 min-w-[1.25rem] px-1">
+                                        {totalItems}
+                                    </span>
+                                    <span className="text-xs font-medium text-neutral-600 tabular-nums">${totalPrice.toFixed(2)}</span>
+                                </>
                             )}
                         </Button>
                     </Link>
