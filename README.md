@@ -2,6 +2,10 @@
 
 Lightweight product browsing & cart demo built with Next.js (App Router), React 19, Tailwind CSS v4, and small shadcn‑style UI primitives. Data is pulled from https://fakestoreapi.com and managed client‑side with a persisted Zustand cart store.
 
+### Demo Links
+- [YouTube Video](https://youtu.be/VjtlmTS8jF8)
+- [Live Website](https://pathor.vercel.app)
+
 ### Features
 * Home landing page with quick navigation & cart badge
 * Product Dashboard (`/dashboard`)
